@@ -101,6 +101,7 @@ extern NSString * const SoundFinishedPlayingNotification;
 - (void)prepareToPlay;
 - (void)playMusic:(NSString *)name looping:(BOOL)looping;
 - (void)stopMusic;
+- (void)playSound:(NSString *)name looping:(BOOL)looping fade:(BOOL)fade;
 - (void)playSound:(NSString *)name looping:(BOOL)looping;
 - (void)stopSound:(NSString *)name;
 - (void)stopAllSounds;

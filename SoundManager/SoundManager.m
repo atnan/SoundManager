@@ -412,7 +412,7 @@ static SoundManager *sharedManager = nil;
     self.currentMusic = nil;
 }
 
-- (void)playSound:(NSString *)name looping:(BOOL)looping
+- (void)playSound:(NSString *)name looping:(BOOL)looping fade:(BOOL)fade
 {
     Sound *sound = [Sound soundWithName:name];
     [currentSounds addObject:sound];
@@ -420,9 +420,23 @@ static SoundManager *sharedManager = nil;
                                              selector:@selector(soundFinished:)
                                                  name:SoundFinishedPlayingNotification
                                                object:sound];
-    sound.volume = soundVolume;
-	sound.looping = looping;
-    [sound play];
+    
+    sound.looping = looping;
+    
+    if (fade) {
+        sound.volume = 0.0;
+        [sound play];
+        [sound fadeTo:soundVolume duration:soundFadeDuration];
+        
+    } else {
+        sound.volume = soundVolume;
+        [sound play];
+    }
+}
+
+- (void)playSound:(NSString *)name looping:(BOOL)looping
+{
+    [self playSound:name looping:looping fade:NO];
 }
 
 - (void)stopSound:(NSString *)name
