@@ -86,7 +86,7 @@ NSString * const SoundFinishedPlayingNotification = @"SoundFinishedPlayingNotifi
 {
 	if ([[_name pathExtension] isEqualToString:@""])
     {
-        _name = [_name stringByAppendingPathExtension:FILE_EXTENSION];
+        _name = [_name stringByAppendingPathExtension:SoundManagerDefaultSoundExtension];
     }
 	
     NSString *path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:_name];
@@ -354,33 +354,29 @@ static SoundManager *sharedManager = nil;
 - (void)prepareToPlay
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSArray *extensions = [NSArray arrayWithObjects:@"caf", @"m4a", @"mp4", @"mp3", @"wav", @"aif", nil];
-    NSArray *paths = nil;
-    for (NSString *extension in extensions)
-    {
-        paths = [[NSBundle mainBundle] pathsForResourcesOfType:FILE_EXTENSION inDirectory:nil];
-        if ([paths count])
-        {
-            break;
+    NSArray *extensions = [NSArray arrayWithObjects:SoundManagerPreloadedFileExtensions, nil];
+    for (NSString *extension in extensions) {
+        NSArray* paths = [[NSBundle mainBundle] pathsForResourcesOfType:extension inDirectory:nil];
+        for (NSString* path in paths) {
+            NSURL *url = [NSURL fileURLWithPath:path];
+            
+            #ifdef TARGET_OS_IPHONE
+            
+                [AVAudioSession sharedInstance];
+                AVAudioPlayer *player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:NULL];
+                [player prepareToPlay];
+                [player release];
+            
+            #else
+            
+                NSSound *sound = [[NSSound alloc] initWithContentsOfURL:url byReference:YES];
+                [sound setVolume:0];
+                [sound play];
+                [sound release];
+            
+            #endif
         }
     }
-    NSURL *url = [NSURL fileURLWithPath:[paths objectAtIndex:0]];
-    
-#ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
-    
-    [AVAudioSession sharedInstance];
-    AVAudioPlayer *player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:NULL];
-    [player prepareToPlay];
-    [player release];
-    
-#else
-    
-    NSSound *sound = [[NSSound alloc] initWithContentsOfURL:url byReference:YES];
-    [sound setVolume:0];
-    [sound play];
-    [sound release];
-    
-#endif
     
     [pool drain];
 }

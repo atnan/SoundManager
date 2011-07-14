@@ -32,9 +32,13 @@
 
 #import <Foundation/Foundation.h>
 
+#ifndef SoundManagerPreloadedFileExtensions
+    #define SoundManagerPreloadedFileExtensions @"caf", @"m4a", @"mp4", @"mp3", @"wav", @"aif"
+#endif
 
-#define FILE_EXTENSION @"caf"
-
+#ifndef SoundManagerDefaultSoundExtension
+    #define SoundManagerDefaultSoundExtension @"caf"
+#endif
 
 extern NSString * const SoundFinishedPlayingNotification;
 
